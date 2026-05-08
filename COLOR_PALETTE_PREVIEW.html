@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mealora Color Palette Preview</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Manrope:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --warm-ivory: #f5f1ec;
+        --soft-cream: #fbf8f4;
+        --light-beige: #ede4da;
+        --muted-olive: #8f9968;
+        --sage-olive: #aeb38b;
+        --dusty-green-gray: #6f745c;
+        --soft-apricot: #d8a878;
+        --warm-clay: #b9846b;
+        --deep-olive-gray: #4e5446;
+        --soft-text-gray: #6d6c66;
+        --light-border-beige: #d9d0c5;
+        --shadow: 0 14px 34px rgba(80, 70, 50, 0.1);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--warm-ivory);
+        color: var(--deep-olive-gray);
+        font-family: "Manrope", sans-serif;
+      }
+
+      .page {
+        width: min(1180px, calc(100% - 48px));
+        margin: 0 auto;
+        padding: 56px 0 76px;
+      }
+
+      .intro {
+        max-width: 780px;
+        margin-bottom: 42px;
+      }
+
+      .eyebrow {
+        margin: 0 0 12px;
+        color: var(--muted-olive);
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      h1,
+      h2,
+      h3 {
+        font-family: "Cormorant Garamond", serif;
+        font-weight: 400;
+        letter-spacing: 0;
+      }
+
+      h1 {
+        margin: 0 0 18px;
+        font-size: clamp(44px, 6vw, 72px);
+        line-height: 1.04;
+      }
+
+      .intro p {
+        margin: 0;
+        color: var(--soft-text-gray);
+        font-size: 18px;
+        line-height: 1.65;
+      }
+
+      .sectionTitle {
+        margin: 56px 0 20px;
+        font-size: 42px;
+        line-height: 1.1;
+      }
+
+      .paletteGrid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+      }
+
+      .swatchCard {
+        overflow: hidden;
+        border: 1px solid rgba(217, 208, 197, 0.72);
+        border-radius: 18px;
+        background: var(--soft-cream);
+        box-shadow: var(--shadow);
+      }
+
+      .swatch {
+        height: 150px;
+        border-bottom: 1px solid rgba(217, 208, 197, 0.72);
+      }
+
+      .swatchInfo {
+        padding: 20px;
+      }
+
+      .swatchInfo h3 {
+        margin: 0 0 8px;
+        font-size: 28px;
+        line-height: 1.15;
+      }
+
+      .hex {
+        display: inline-flex;
+        margin-bottom: 12px;
+        border-radius: 999px;
+        background: var(--light-beige);
+        padding: 7px 11px;
+        color: var(--deep-olive-gray);
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .usage {
+        margin: 0;
+        color: var(--soft-text-gray);
+        font-size: 15px;
+        line-height: 1.55;
+      }
+
+      .uiGrid {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 22px;
+      }
+
+      .previewPanel {
+        border: 1px solid rgba(217, 208, 197, 0.72);
+        border-radius: 22px;
+        background: var(--soft-cream);
+        box-shadow: var(--shadow);
+        padding: 32px;
+      }
+
+      .miniNav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 38px;
+        border-radius: 24px;
+        background: rgba(251, 248, 244, 0.86);
+        box-shadow: 0 10px 30px rgba(80, 70, 50, 0.1);
+        padding: 14px 18px;
+      }
+
+      .brand {
+        color: var(--deep-olive-gray);
+        font-family: "Cormorant Garamond", serif;
+        font-size: 28px;
+      }
+
+      .navLinks {
+        display: flex;
+        gap: 8px;
+      }
+
+      .pill {
+        border-radius: 999px;
+        padding: 8px 13px;
+        color: var(--dusty-green-gray);
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .pill.active {
+        background: var(--light-beige);
+        color: var(--deep-olive-gray);
+      }
+
+      .heroPreview {
+        display: grid;
+        grid-template-columns: 1fr 230px;
+        gap: 28px;
+        align-items: center;
+      }
+
+      .heroPreview h2 {
+        margin: 0 0 14px;
+        color: var(--deep-olive-gray);
+        font-size: 52px;
+        line-height: 1.05;
+      }
+
+      .heroPreview p {
+        margin: 0 0 22px;
+        color: var(--soft-text-gray);
+        font-size: 17px;
+        line-height: 1.65;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .buttonPrimary,
+      .buttonSecondary {
+        min-height: 46px;
+        border-radius: 12px;
+        padding: 13px 20px;
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      .buttonPrimary {
+        background: var(--muted-olive);
+        color: var(--soft-cream);
+        box-shadow: 0 8px 20px rgba(80, 70, 50, 0.1);
+      }
+
+      .buttonSecondary {
+        border: 1px solid var(--light-border-beige);
+        background: var(--soft-cream);
+        color: var(--deep-olive-gray);
+      }
+
+      .imagePlaceholder {
+        min-height: 290px;
+        border-radius: 22px;
+        background:
+          radial-gradient(circle at 70% 22%, rgba(216, 168, 120, 0.3), transparent 30%),
+          linear-gradient(145deg, var(--light-beige), #e3e5d7);
+        border: 1px solid rgba(217, 208, 197, 0.7);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .imagePlaceholder::before {
+        content: "";
+        position: absolute;
+        inset: 46px 42px;
+        border-radius: 20px;
+        background: var(--soft-cream);
+        box-shadow: 0 18px 30px rgba(80, 70, 50, 0.12);
+        transform: rotate(-4deg);
+      }
+
+      .imagePlaceholder::after {
+        content: "место для фото";
+        position: absolute;
+        left: 28px;
+        bottom: 26px;
+        border-radius: 999px;
+        background: rgba(251, 248, 244, 0.78);
+        color: var(--dusty-green-gray);
+        padding: 8px 12px;
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .rationCards {
+        display: grid;
+        gap: 16px;
+      }
+
+      .rationCard {
+        border: 1px solid rgba(217, 208, 197, 0.72);
+        border-radius: 18px;
+        background: var(--soft-cream);
+        box-shadow: var(--shadow);
+        padding: 24px;
+      }
+
+      .rationCard.featured {
+        background: #e3e5d7;
+      }
+
+      .badge {
+        display: inline-flex;
+        margin-bottom: 14px;
+        border-radius: 999px;
+        background: rgba(216, 168, 120, 0.22);
+        color: var(--warm-clay);
+        padding: 7px 11px;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .rationCard h3 {
+        margin: 0 0 10px;
+        color: var(--deep-olive-gray);
+        font-size: 30px;
+        line-height: 1.15;
+      }
+
+      .rationCard p {
+        margin: 0;
+        color: var(--soft-text-gray);
+        line-height: 1.55;
+      }
+
+      .roleGrid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+      }
+
+      .roleCard {
+        border-radius: 18px;
+        border: 1px solid rgba(217, 208, 197, 0.72);
+        background: var(--soft-cream);
+        padding: 22px;
+      }
+
+      .roleColor {
+        height: 74px;
+        margin-bottom: 16px;
+        border-radius: 14px;
+      }
+
+      .roleCard h3 {
+        margin: 0 0 8px;
+        font-size: 26px;
+      }
+
+      .roleCard p {
+        margin: 0;
+        color: var(--soft-text-gray);
+        line-height: 1.55;
+      }
+
+      @media (max-width: 860px) {
+        .paletteGrid,
+        .uiGrid,
+        .roleGrid,
+        .heroPreview {
+          grid-template-columns: 1fr;
+        }
+
+        .page {
+          width: min(100% - 32px, 1180px);
+          padding-top: 36px;
+        }
+
+        .previewPanel {
+          padding: 22px;
+        }
+
+        .heroPreview h2 {
+          font-size: 42px;
+        }
+
+        .navLinks {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="intro">
+        <p class="eyebrow">Mealora / предварительный просмотр палитры</p>
+        <h1>Цветовая система сайта</h1>
+        <p>
+          Эта страница показывает палитру из STYLE_UI_SPEC.md: основные фоны,
+          акценты, цвета текста, границы и примеры применения в интерфейсе.
+        </p>
+      </section>
+
+      <h2 class="sectionTitle">Все цвета</h2>
+      <section class="paletteGrid">
+        <article class="swatchCard">
+          <div class="swatch" style="background: #f5f1ec"></div>
+          <div class="swatchInfo">
+            <h3>Теплый Слоновый</h3>
+            <span class="hex">#F5F1EC</span>
+            <p class="usage">Основной фон страницы, большие секции, спокойные фоновые области.</p>
+          </div>
+        </article>
+
+        <article class="swatchCard">
+          <div class="swatch" style="background: #fbf8f4"></div>
+          <div class="swatchInfo">
+            <h3>Мягкий Кремовый</h3>
+            <span class="hex">#FBF8F4</span>
+            <p class="usage">Карточки, навигация, футер, светлые UI-панели.</p>
+          </div>
+        </article>
+
+        <article class="swatchCard">
+          <div class="swatch" style="background: #ede4da"></div>
+          <div class="swatchInfo">
+            <h3>Светлый Бежевый</h3>
+            <span class="hex">#EDE4DA</span>
+            <p class="usage">Мягкие блоки, разделители, границы, активная навигация.</p>
+          </div>
+        </article>
+
+        <article class="swatchCard">
+          <div class="swatch" style="background: #8f9968"></div>
+          <div class="swatchInfo">
+            <h3>Приглушенный Оливковый</h3>
+            <span class="hex">#8F9968</span>
+            <p class="usage">Основные кнопки, активные состояния, важные акценты.</p>
+          </div>
+        </article>
+
+        <article class="swatchCard">
+          <div class="swatch" style="background: #aeb38b"></div>
+          <div class="swatchInfo">
+            <h3>Шалфейный Оливковый</h3>
+            <span class="hex">#AEB38B</span>
+            <p class="usage">Вторичные акценты, номера шагов, мягко выделенные карточки.</p>
+          </div>
+        </article>
+
+        <article class="swatchCard">
+          <div class="swatch" style="background: #6f745c"></div>
+          <div class="swatchInfo">
+            <h3>Пыльный Серо-Зеленый</h3>
+            <span class="hex">#6F745C</span>
+            <p class="usage">Второстепенный текст, подписи, иконки, ссылки в футере.</p>
+          </div>
+        </article>
+
+        <article class="swatchCard">
+          <div class="swatch" style="background: #d8a878"></div>
+          <div class="swatchInfo">
+            <h3>Мягкий Абрикосовый</h3>
+            <span class="hex">#D8A878</span>
+            <p class="usage">Редкие теплые детали, бейджи, иллюстративные акценты.</p>
+          </div>
+        </article>
+
+        <article class="swatchCard">
+          <div class="swatch" style="background: #b9846b"></div>
+          <div class="swatchInfo">
+            <h3>Теплый Глиняный</h3>
+            <span class="hex">#B9846B</span>
+            <p class="usage">Очень ограниченные детали, мягкий контраст, акценты в иллюстрациях.</p>
+          </div>
+        </article>
+
+        <article class="swatchCard">
+          <div class="swatch" style="background: #4e5446"></div>
+          <div class="swatchInfo">
+            <h3>Глубокий Оливково-Серый</h3>
+            <span class="hex">#4E5446</span>
+            <p class="usage">Главные заголовки, важный текст, навигация, wordmark.</p>
+          </div>
+        </article>
+
+        <article class="swatchCard">
+          <div class="swatch" style="background: #6d6c66"></div>
+          <div class="swatchInfo">
+            <h3>Мягкий Серый Текст</h3>
+            <span class="hex">#6D6C66</span>
+            <p class="usage">Абзацы, описания, второстепенная информация.</p>
+          </div>
+        </article>
+
+        <article class="swatchCard">
+          <div class="swatch" style="background: #d9d0c5"></div>
+          <div class="swatchInfo">
+            <h3>Светлая Бежевая Граница</h3>
+            <span class="hex">#D9D0C5</span>
+            <p class="usage">Границы, разделители, тонкие контуры.</p>
+          </div>
+        </article>
+      </section>
+
+      <h2 class="sectionTitle">Пример интерфейса</h2>
+      <section class="uiGrid">
+        <article class="previewPanel">
+          <nav class="miniNav">
+            <div class="brand">Mealora</div>
+            <div class="navLinks">
+              <span class="pill active">Рационы</span>
+              <span class="pill">Как работает</span>
+              <span class="pill">Контакты</span>
+            </div>
+          </nav>
+
+          <div class="heroPreview">
+            <div>
+              <h2>Недельные планы обедов и ужинов</h2>
+              <p>
+                Персональные рационы от нутрициологов и поваров с доставкой
+                три раза в неделю в городе Зорка, Иордания.
+              </p>
+              <div class="actions">
+                <span class="buttonPrimary">Выбрать рацион</span>
+                <span class="buttonSecondary">Уточнить детали</span>
+              </div>
+            </div>
+            <div class="imagePlaceholder"></div>
+          </div>
+        </article>
+
+        <aside class="rationCards">
+          <article class="rationCard featured">
+            <span class="badge">популярно</span>
+            <h3>Сбалансированный рацион</h3>
+            <p>Для клиентов, которые хотят регулярное питание без строгих ограничений.</p>
+          </article>
+          <article class="rationCard">
+            <span class="badge">легкий формат</span>
+            <h3>Рацион с контролем калорий</h3>
+            <p>Более легкое питание без медицинских или гарантированных обещаний.</p>
+          </article>
+        </aside>
+      </section>
+
+      <h2 class="sectionTitle">Роли цветов</h2>
+      <section class="roleGrid">
+        <article class="roleCard">
+          <div class="roleColor" style="background: #f5f1ec"></div>
+          <h3>Фоновая база</h3>
+          <p>#F5F1EC держит общий сайт теплым и спокойным.</p>
+        </article>
+        <article class="roleCard">
+          <div class="roleColor" style="background: #fbf8f4"></div>
+          <h3>Поверхности</h3>
+          <p>#FBF8F4 подходит для карточек, навигации и панелей.</p>
+        </article>
+        <article class="roleCard">
+          <div class="roleColor" style="background: #8f9968"></div>
+          <h3>Главный акцент</h3>
+          <p>#8F9968 использовать для CTA, активных состояний и ключевых действий.</p>
+        </article>
+        <article class="roleCard">
+          <div class="roleColor" style="background: #d8a878"></div>
+          <h3>Теплый акцент</h3>
+          <p>#D8A878 добавляет живость, но должен использоваться редко.</p>
+        </article>
+      </section>
+    </main>
+  </body>
+</html>

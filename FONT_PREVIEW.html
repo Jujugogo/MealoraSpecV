@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mealora Font Preview</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400;6..96,500&family=Cormorant:ital,wght@0,400;0,500;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=DM+Sans:opsz,wght@9..40,400;9..40,500&family=Inter:wght@400;500;600&family=Libre+Baskerville:wght@400;700&family=Manrope:wght@400;500;600&family=Nunito+Sans:opsz,wght@6..12,400;6..12,500;6..12,600&family=Playfair+Display:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --warm-ivory: #f5f1ec;
+        --soft-cream: #fbf8f4;
+        --light-beige: #ede4da;
+        --muted-olive: #8f9968;
+        --sage-olive: #aeb38b;
+        --deep-olive-gray: #4e5446;
+        --soft-text-gray: #6d6c66;
+        --border: #d9d0c5;
+        --shadow: 0 14px 34px rgba(80, 70, 50, 0.1);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--warm-ivory);
+        color: var(--deep-olive-gray);
+        font-family: "Manrope", sans-serif;
+      }
+
+      .page {
+        width: min(1180px, calc(100% - 48px));
+        margin: 0 auto;
+        padding: 56px 0 72px;
+      }
+
+      .intro {
+        max-width: 760px;
+        margin-bottom: 40px;
+      }
+
+      .eyebrow {
+        margin: 0 0 12px;
+        color: var(--muted-olive);
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      h1 {
+        margin: 0 0 18px;
+        font-family: "Cormorant Garamond", serif;
+        font-size: clamp(44px, 6vw, 72px);
+        line-height: 1.04;
+        font-weight: 400;
+        letter-spacing: 0;
+      }
+
+      .intro p {
+        margin: 0;
+        color: var(--soft-text-gray);
+        font-size: 18px;
+        line-height: 1.65;
+      }
+
+      .sectionTitle {
+        margin: 56px 0 20px;
+        font-family: "Cormorant Garamond", serif;
+        font-size: 42px;
+        line-height: 1.1;
+        font-weight: 400;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 20px;
+      }
+
+      .card {
+        min-height: 300px;
+        padding: 30px;
+        border: 1px solid rgba(217, 208, 197, 0.72);
+        border-radius: 18px;
+        background: var(--soft-cream);
+        box-shadow: var(--shadow);
+      }
+
+      .fontName {
+        margin: 0 0 18px;
+        color: var(--muted-olive);
+        font-family: "Manrope", sans-serif;
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      .headingSample {
+        margin: 0 0 14px;
+        font-size: 44px;
+        line-height: 1.08;
+        font-weight: 400;
+        letter-spacing: 0;
+      }
+
+      .subheadingSample {
+        margin: 0 0 22px;
+        color: var(--soft-text-gray);
+        font-size: 18px;
+        line-height: 1.6;
+      }
+
+      .bodySample {
+        margin: 0 0 22px;
+        color: var(--soft-text-gray);
+        font-size: 18px;
+        line-height: 1.65;
+      }
+
+      .button {
+        display: inline-flex;
+        min-height: 46px;
+        align-items: center;
+        border-radius: 12px;
+        background: var(--muted-olive);
+        color: var(--soft-cream);
+        padding: 12px 22px;
+        font-size: 15px;
+        font-weight: 600;
+      }
+
+      .pair {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 18px;
+      }
+
+      .pairCard {
+        padding: 34px;
+        border-radius: 18px;
+        background: linear-gradient(135deg, var(--soft-cream), #f7efe6);
+        border: 1px solid rgba(217, 208, 197, 0.72);
+        box-shadow: var(--shadow);
+      }
+
+      .pairCard h3 {
+        margin: 0 0 14px;
+        font-size: 46px;
+        line-height: 1.08;
+        font-weight: 400;
+        letter-spacing: 0;
+      }
+
+      .pairCard p {
+        max-width: 680px;
+        margin: 0 0 22px;
+        color: var(--soft-text-gray);
+        font-size: 18px;
+        line-height: 1.65;
+      }
+
+      .note {
+        margin-top: 28px;
+        padding: 18px 20px;
+        border-radius: 14px;
+        background: var(--light-beige);
+        color: var(--soft-text-gray);
+        line-height: 1.55;
+      }
+
+      .cormorant-garamond {
+        font-family: "Cormorant Garamond", serif;
+      }
+      .cormorant {
+        font-family: "Cormorant", serif;
+      }
+      .libre {
+        font-family: "Libre Baskerville", serif;
+      }
+      .bodoni {
+        font-family: "Bodoni Moda", serif;
+      }
+      .playfair {
+        font-family: "Playfair Display", serif;
+      }
+      .canela {
+        font-family: "Canela", "Playfair Display", serif;
+      }
+      .manrope {
+        font-family: "Manrope", sans-serif;
+      }
+      .dm-sans {
+        font-family: "DM Sans", sans-serif;
+      }
+      .inter {
+        font-family: "Inter", sans-serif;
+      }
+      .nunito {
+        font-family: "Nunito Sans", sans-serif;
+      }
+      .avenir {
+        font-family: "Avenir", "Avenir Next", "Nunito Sans", sans-serif;
+      }
+
+      @media (max-width: 760px) {
+        .page {
+          width: min(100% - 32px, 1180px);
+          padding-top: 36px;
+        }
+
+        .grid {
+          grid-template-columns: 1fr;
+        }
+
+        .card,
+        .pairCard {
+          padding: 24px;
+        }
+
+        .headingSample,
+        .pairCard h3 {
+          font-size: 38px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="intro">
+        <p class="eyebrow">Mealora / предварительный просмотр шрифтов</p>
+        <h1>Спокойное питание на неделю</h1>
+        <p>
+          Эта страница показывает рекомендованные шрифты из STYLE_UI_SPEC.md на
+          реальных примерах: заголовки, описания, карточки и кнопки.
+        </p>
+      </section>
+
+      <h2 class="sectionTitle">Шрифты для заголовков</h2>
+      <section class="grid">
+        <article class="card">
+          <p class="fontName">Cormorant Garamond / основной вариант</p>
+          <h2 class="headingSample cormorant-garamond">Недельные рационы Mealora</h2>
+          <p class="subheadingSample manrope">
+            Мягкий, элегантный, премиальный. Хорошо подходит для wellness-настроения.
+          </p>
+          <span class="button manrope">Выбрать рацион</span>
+        </article>
+
+        <article class="card">
+          <p class="fontName">Cormorant</p>
+          <h2 class="headingSample cormorant">Недельные рационы Mealora</h2>
+          <p class="subheadingSample manrope">
+            Более воздушный и editorial. Выглядит нежно, но может быть чуть менее строгим.
+          </p>
+          <span class="button manrope">Выбрать рацион</span>
+        </article>
+
+        <article class="card">
+          <p class="fontName">Libre Baskerville</p>
+          <h2 class="headingSample libre">Недельные рационы Mealora</h2>
+          <p class="subheadingSample manrope">
+            Более классический и плотный. Дает доверие, но меньше мягкости.
+          </p>
+          <span class="button manrope">Выбрать рацион</span>
+        </article>
+
+        <article class="card">
+          <p class="fontName">Bodoni Moda</p>
+          <h2 class="headingSample bodoni">Недельные рационы Mealora</h2>
+          <p class="subheadingSample manrope">
+            Самый fashion/premium вариант. Красивый, но требует аккуратной верстки.
+          </p>
+          <span class="button manrope">Выбрать рацион</span>
+        </article>
+
+        <article class="card">
+          <p class="fontName">Playfair Display</p>
+          <h2 class="headingSample playfair">Недельные рационы Mealora</h2>
+          <p class="subheadingSample manrope">
+            Элегантный и выразительный. Может выглядеть чуть более ресторанно.
+          </p>
+          <span class="button manrope">Выбрать рацион</span>
+        </article>
+
+        <article class="card">
+          <p class="fontName">Canela / если установлен</p>
+          <h2 class="headingSample canela">Недельные рационы Mealora</h2>
+          <p class="subheadingSample manrope">
+            Покажется как Canela только если этот шрифт установлен или подключен отдельно.
+          </p>
+          <span class="button manrope">Выбрать рацион</span>
+        </article>
+      </section>
+
+      <h2 class="sectionTitle">Шрифты для основного текста</h2>
+      <section class="grid">
+        <article class="card">
+          <p class="fontName">Manrope / основной вариант</p>
+          <p class="bodySample manrope">
+            Mealora разрабатывает персональные рационы с нутрициологами и поварами,
+            готовит блюда и доставляет их три раза в неделю в городе Зорка, Иордания.
+          </p>
+          <span class="button manrope">Оформить подписку</span>
+        </article>
+
+        <article class="card">
+          <p class="fontName">DM Sans</p>
+          <p class="bodySample dm-sans">
+            Mealora разрабатывает персональные рационы с нутрициологами и поварами,
+            готовит блюда и доставляет их три раза в неделю в городе Зорка, Иордания.
+          </p>
+          <span class="button dm-sans">Оформить подписку</span>
+        </article>
+
+        <article class="card">
+          <p class="fontName">Inter</p>
+          <p class="bodySample inter">
+            Mealora разрабатывает персональные рационы с нутрициологами и поварами,
+            готовит блюда и доставляет их три раза в неделю в городе Зорка, Иордания.
+          </p>
+          <span class="button inter">Оформить подписку</span>
+        </article>
+
+        <article class="card">
+          <p class="fontName">Nunito Sans</p>
+          <p class="bodySample nunito">
+            Mealora разрабатывает персональные рационы с нутрициологами и поварами,
+            готовит блюда и доставляет их три раза в неделю в городе Зорка, Иордания.
+          </p>
+          <span class="button nunito">Оформить подписку</span>
+        </article>
+
+        <article class="card">
+          <p class="fontName">Avenir / если установлен</p>
+          <p class="bodySample avenir">
+            Mealora разрабатывает персональные рационы с нутрициологами и поварами,
+            готовит блюда и доставляет их три раза в неделю в городе Зорка, Иордания.
+          </p>
+          <span class="button avenir">Оформить подписку</span>
+        </article>
+      </section>
+
+      <h2 class="sectionTitle">Рекомендуемые пары</h2>
+      <section class="pair">
+        <article class="pairCard">
+          <p class="fontName">Пара 1 / рекомендую для Mealora</p>
+          <h3 class="cormorant-garamond">Cormorant Garamond + Manrope</h3>
+          <p class="manrope">
+            Самая сбалансированная пара для текущего направления: мягкая, премиальная,
+            читаемая и не слишком ресторанная.
+          </p>
+          <span class="button manrope">Выбрать недельный рацион</span>
+        </article>
+
+        <article class="pairCard">
+          <p class="fontName">Пара 2 / более editorial</p>
+          <h3 class="playfair">Playfair Display + DM Sans</h3>
+          <p class="dm-sans">
+            Более выразительный вариант. Подойдет, если хочется сильнее подчеркнуть
+            lifestyle и визуальную премиальность.
+          </p>
+          <span class="button dm-sans">Выбрать недельный рацион</span>
+        </article>
+
+        <article class="pairCard">
+          <p class="fontName">Пара 3 / более спокойная и классическая</p>
+          <h3 class="libre">Libre Baskerville + Inter</h3>
+          <p class="inter">
+            Более строгий и надежный вариант. Хорош для доверия, но чуть менее мягкий
+            и wellness по ощущению.
+          </p>
+          <span class="button inter">Выбрать недельный рацион</span>
+        </article>
+      </section>
+
+      <p class="note">
+        Примечание: Canela и Avenir не являются стандартными Google Fonts. Они
+        отобразятся настоящими только если установлены на компьютере или подключены
+        отдельно. Остальные шрифты подключены через Google Fonts.
+      </p>
+    </main>
+  </body>
+</html>
