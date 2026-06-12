@@ -25,6 +25,35 @@ Only specs inside `checked-and-approved/` can be used as the final source of tru
 
 Any spec with contradictions, gray zones, missing decisions, or unclear requirements must stay in `draft/` until the project owner approves it.
 
+## Spec Folder and Status Synchronization Rule
+
+The folder where a spec is located and the status written inside the spec must always match.
+
+Required mapping:
+
+```txt
+draft folder -> Status: draft
+checked-and-approved folder -> Status: checked-and-approved
+```
+
+This rule applies regardless of case or local folder spelling variants used in the repository, including `Draft`, `draft`, `checked-and-approved`, `checked and approved`, or similar approved-status folder names.
+
+When moving any spec from `draft` to `checked-and-approved` after project owner approval, the agent must in the same change:
+
+1. Move the spec into the approved-status folder.
+2. Update the status inside the spec to `checked-and-approved`.
+3. Re-read the moved file and verify that the path and internal status match.
+4. Report the path and final status to the user.
+
+When moving any spec back from `checked-and-approved` to `draft`, the agent must in the same change:
+
+1. Move the spec into the draft-status folder.
+2. Update the status inside the spec to `draft`.
+3. Re-read the moved file and verify that the path and internal status match.
+4. Report the path and final status to the user.
+
+The agent must not leave a spec with a draft status inside an approved-status folder, or an approved status inside a draft-status folder.
+
 ## Gray Zone and Conflict Check
 
 Before working from a spec, the agent must check it for:
@@ -70,7 +99,8 @@ If the user explicitly asks to continue despite an unclear spec:
 
 * The agent must clearly mark all assumptions.
 * The spec must remain in `draft/`.
-* The agent must not commit or push the work until the spec is approved and moved to `checked-and-approved/`.
+* The agent may commit, create branches, push, and open pull requests while the spec remains in `draft/`, as long as all assumptions and unresolved points are documented in the draft spec and reported to the project owner.
+* The agent must not move the spec to `checked-and-approved/` until the spec is checked and the project owner explicitly approves that move.
 
 ## Approval Ownership Rule
 
@@ -87,44 +117,41 @@ Recommendation: this spec can be moved to checked-and-approved after project own
 
 ## Commit and Push Gate
 
-Before every commit or push, the agent must perform a Spec Approval Gate.
+Before every commit or push, the agent must perform a Spec Status Gate.
 
 The agent must verify:
 
 1. Every changed feature, page, API route, database schema, UI rule, or workflow is covered by a related spec.
-2. The related spec is located in:
-
-```txt
-/specs/checked-and-approved/
-```
-
-3. The implementation does not contradict the approved spec.
+2. The related spec is located in either `/specs/draft/` or `/specs/checked-and-approved/`.
+3. The implementation does not contradict the related spec.
 4. Any new decisions discovered during implementation were added back to the spec.
 5. No temporary assumptions remain undocumented.
-6. No feature was implemented from a `draft/` spec.
+6. If the related spec is in `draft/`, the commit or pull request must clearly state that the work is based on a draft spec and is not yet checked-and-approved.
+7. Every changed spec file has an internal status that matches its containing status folder.
+8. No spec was moved from `draft/` to `checked-and-approved/` without project owner approval.
 
 ## Commit Blocking Rule
 
 The agent must not commit or push if:
 
 * The related spec is missing.
-* The related spec is still in `draft/`.
-* The implementation contains assumptions not written in the approved spec.
-* The code behavior differs from the approved spec.
-* The spec has unresolved contradictions or gray zones.
-* The project owner has not approved the spec.
+* The implementation contains assumptions not written in the related spec.
+* The code behavior differs from the related spec.
+* The related spec has unresolved contradictions, gray zones, or assumptions that are not documented in the spec.
+* The project owner has not approved moving a spec from `draft/` to `checked-and-approved/`, but the change moves it anyway.
+* Any changed spec file has an internal status that does not match its containing status folder.
 
 In this case, the agent must stop and report:
 
 ```txt
-Commit blocked: related spec is not checked and approved.
+Commit blocked: spec gate failed.
 
 Reason:
 - [list exact reason]
 
 Required action:
-- [what must be clarified before commit]
-- [which spec must be approved and moved to checked-and-approved]
+- [what must be documented, clarified, or corrected before commit]
+- [whether any spec move requires project owner approval]
 ```
 
 ## Pre-Commit Checklist
@@ -141,7 +168,7 @@ Pre-Commit Spec Check:
    - draft / checked-and-approved
 
 3. Is the spec approved by the project owner?
-   - yes / no
+   - yes / no / not required for this commit
 
 4. Did implementation follow the spec exactly?
    - yes / no
@@ -152,7 +179,10 @@ Pre-Commit Spec Check:
 6. Are there unresolved gray zones?
    - yes / no
 
-7. Commit allowed?
+7. Do all changed spec files have status matching their folder?
+   - yes / no
+
+8. Commit allowed?
    - yes / no
 ```
 
