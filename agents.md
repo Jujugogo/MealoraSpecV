@@ -25,6 +25,14 @@ Only specs inside `checked-and-approved/` can be used as the final source of tru
 
 Any spec with contradictions, gray zones, missing decisions, or unclear requirements must stay in `draft/` until the project owner approves it.
 
+## Spec Language Rule
+
+Project specifications must be written in Russian by default.
+
+Technical identifiers, route names, database field names, status values, API names, framework names, and code-level terms may remain in English when that keeps the implementation contract precise.
+
+Use another language for a spec only if the project owner explicitly requests it.
+
 ## Spec Folder and Status Synchronization Rule
 
 The folder where a spec is located and the status written inside the spec must always match.

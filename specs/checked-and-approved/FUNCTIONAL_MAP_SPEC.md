@@ -15,11 +15,11 @@ Functional Map подготовлена на основе следующих о�
 - `specs/checked-and-approved/BUSINESS_SPEC.md`
 - `specs/checked-and-approved/STYLE_UI_SPEC.md`
 
-Поддерживающая техническая спецификация пока остается в draft:
+Поддерживающая техническая спецификация проверена и находится в `checked-and-approved`:
 
-- `specs/draft/TECHNICAL_SPEC.md`
+- `specs/checked-and-approved/TECHNICAL_SPEC.md`
 
-Functional Map сама остается в draft, пока владелец проекта не проверит и не одобрит ее перенос в `checked-and-approved`.
+Functional Map проверена владельцем проекта и находится в `checked-and-approved`.
 
 ## 3. Публичные страницы
 
@@ -745,4 +745,4 @@ Demo payment доступна только после того, как Mealora �
 
 ## 13. Статус одобрения
 
-Functional Map не считается одобренной, пока владелец проекта ее не проверит.
+Functional Map проверена владельцем проекта и имеет статус `checked-and-approved`.
