@@ -205,12 +205,13 @@ Commit allowed: yes
 When there is a conflict between documents, use this priority order:
 
 1. `GlobalSpec`
-2. `FunctionalMap`
-3. `FeatureSpecs`
-4. `TechnicalSpecs`
-5. `VisualRules`
-6. `UserStories`
-7. `WorkPlans`
+2. `BusinessSpec`
+3. `FunctionalMap`
+4. `FeatureSpecs`
+5. `TechnicalSpecs`
+6. `VisualRules`
+7. `UserStories`
+8. `WorkPlans`
 
 However, if a lower-level spec contains more detailed behavior and does not contradict the higher-level spec, the lower-level spec may be used for implementation details.
 
