@@ -88,12 +88,12 @@ Mealora v1 не включает:
 - `/`
 - `/plans`
 - `/order-request`
-- `/order-request/success`
 
 Customer routes:
 
 - `/auth/login`
 - `/auth/register`
+- `/order-request/success?request_id={id}`
 - `/account`
 - `/account/order-requests`
 - `/account/order-requests/[id]`
@@ -176,6 +176,7 @@ Customer users могут открывать только customer account pages
 - `user_id` UUID, ссылается на customer profile / Supabase Auth user id;
 - `created_at` timestamp;
 - `updated_at` timestamp;
+- `idempotency_key` UUID;
 - `status` статус заявки;
 - `payment_status` статус payment lifecycle;
 - `plan_type`;
@@ -198,6 +199,39 @@ Customer users могут открывать только customer account pages
 - `additional_notes`;
 - `preferred_start_date`;
 - `admin_notes`;
+
+Правила полей Order Request:
+
+- `plan_type` принимает только `balanced`, `calorie_control`, `sport`, `light_gentle`;
+- `meal_format` принимает только `one_daily_meal`, `lunch_and_dinner`;
+- публичная форма v1 сохраняет объединенное поле `Продукты, которые вы не едите или плохо переносите` в `excluded_foods`;
+- `food_preferences` и `mild_intolerances` публичной формой v1 не заполняются и остаются `null`;
+- `spice_level` принимает `none`, `mild`, `medium`, `hot` или `null`;
+- `additional_notes` хранит отдельные дополнительные пожелания;
+- `preferred_start_date` хранит только ближайшее будущее воскресенье по `Asia/Amman` как date без времени;
+- `customer_whatsapp` хранится в нормализованном формате `+9627XXXXXXXX`;
+- `delivery_city_or_zone` принимает только `city_center`, `al_thawra`, `awajan`, `zawahreh`, `new_zarqa`.
+
+Idempotency constraints:
+
+- пара `user_id + idempotency_key` должна иметь unique constraint;
+- создание заявки и фиксация `idempotency_key` выполняются одной атомарной database operation;
+- повторная попытка с той же парой возвращает существующую заявку и не создает новую запись;
+- `idempotency_key` не дает права читать заявку без проверки authenticated `user_id`.
+
+Timeout retry constraints:
+
+- automatic retry запрещен;
+- перед первым submit client сохраняет pending-запись в `sessionStorage`;
+- pending-запись содержит `idempotency_key`, fingerprint normalized payload и attempt count;
+- первая отправка имеет `attempt_count = 1`;
+- неизмененный payload повторяется с тем же key;
+- максимум `attempt_count = 3`;
+- после трех timeout/error результатов client прекращает retry и предлагает открыть `/account/order-requests`;
+- измененный payload удаляет pending-запись и требует новый `idempotency_key`;
+- server возвращает существующую заявку при повторе уже обработанного key;
+- pending-запись очищается после success, logout, смены пользователя или закрытия вкладки;
+- refresh восстанавливает pending retry state без автоматического network request.
 
 ### 6.3 `payment_attempts`
 
@@ -245,8 +279,8 @@ Manual agreed payment не создает запись в `payment_attempts`. Е
 
 Правила:
 
-- `plan_type` должен соответствовать одному из активных планов v1;
-- `meal_format` должен соответствовать одному из форматов питания v1;
+- `plan_type` должен быть `balanced`, `calorie_control`, `sport` или `light_gentle`;
+- `meal_format` должен быть `one_daily_meal` или `lunch_and_dinner`;
 - `people_count` должен быть от 1 до 5;
 - `cycle_days` для v1 должен быть 5;
 - `amount` должен быть больше 0;
@@ -324,9 +358,49 @@ Server должен отклонить заявку, если:
 - `cycle_price` отсутствует;
 - active price не найден в `price_options`;
 - выбранный plan, format или people count недействителен;
-- delivery zone находится вне поддерживаемой зоны доставки Zarqa.
+- delivery zone не входит в allowlist `city_center`, `al_thawra`, `awajan`, `zawahreh`, `new_zarqa`;
+- `idempotency_key` отсутствует или не является valid UUID;
+- имя после normalization короче 2 или длиннее 80 Unicode code points либо содержит недопустимые символы;
+- `customer_whatsapp` не соответствует мобильному номеру Иордании;
+- адрес после normalization короче 5 или длиннее 250 Unicode code points либо содержит недопустимые символы;
+- `excluded_foods` или `additional_notes` длиннее 500 Unicode code points;
+- `spice_level` не равно `none`, `mild`, `medium`, `hot` или `null`;
+- `preferred_start_date` указана, но не равна ближайшему будущему воскресенью по `Asia/Amman`; текущая дата не считается будущей, поэтому в воскресенье valid датой является воскресенье следующей недели;
+- payload пытается установить `status`, `payment_status`, `admin_notes`, `user_id` или другие server-managed fields.
 
 Если price невозможно рассчитать или найти, публичная форма не должна создавать заявку.
+
+Price change rules:
+
+- client передает последнюю показанную цену только для сравнения, но не как источник истины;
+- server повторно получает active цену перед insert;
+- если показанная client цена отличается от active server price, server не создает заявку;
+- server возвращает code `price_changed`, `old_price`, `new_price` и `currency = JOD`;
+- client обновляет итог, сохраняет форму и требует повторный submit;
+- повторное подтверждение новой цены создает новый `idempotency_key`;
+- если active price отсутствует или стала inactive, server возвращает `price_unavailable`;
+- только совпадающая с последним явно подтвержденным итогом active цена сохраняется как `order_requests.cycle_price`.
+
+Normalization rules:
+
+- пробелы в начале и конце удаляются;
+- повторяющиеся пробелы в однострочных полях заменяются одним;
+- переносы строк нормализуются в `LF`;
+- пустые необязательные строки сохраняются как `null`;
+- HTML не интерпретируется как markup;
+- локальный телефон `07XXXXXXXX` преобразуется в `+9627XXXXXXXX`;
+- international input принимается только в формате `+9627XXXXXXXX`;
+- server повторяет normalization независимо от client-side обработки.
+
+Step validation rules:
+
+- client проверяет обязательные поля текущего шага перед переходом вперед;
+- шаг 1 требует valid `plan_type`, `meal_format`, `people_count` и загруженную active цену;
+- шаг 2 требует допустимый high-risk ответ; default `no` считается valid подтверждением;
+- шаг 3 требует valid `customer_name`, `customer_whatsapp`, `delivery_city_or_zone` и `delivery_address`;
+- переход назад не требует validation;
+- шаг 4 и восстановленная после authentication форма проходят полную client-side validation;
+- успешная step validation не заменяет финальную server-side validation.
 
 ## 7. Flow публичной отправки заявки
 
@@ -336,13 +410,16 @@ Server должен отклонить заявку, если:
 4. После временного сохранения данных приложение перенаправляет customer на `/auth/login` или `/auth/register` перед финальной отправкой.
 5. После successful authentication приложение возвращает customer к заявке и восстанавливает временно сохраненные данные формы.
 6. Customer подтверждает финальную отправку восстановленной заявки.
-7. После authentication server-side validation повторяет все critical checks.
-8. Server рассчитывает или проверяет `cycle_price`.
-9. Server создает новую запись `order_requests` со статусом `submitted`, payment status `not_required` и `user_id` authenticated customer.
-10. После успешного создания заявки приложение очищает временно сохраненные client-side данные формы.
-11. User перенаправляется на `/order-request/success`.
-12. Customer видит отправленную заявку в `/account/order-requests`.
-13. Admin видит отправленную заявку в `/admin/order-requests`.
+7. Client создает UUID `idempotency_key`, блокирует повторный submit и сохраняет key для retry этой логической отправки.
+8. После authentication server-side validation и normalization повторяют все critical checks.
+9. Server рассчитывает или проверяет `cycle_price`.
+10. Server атомарно создает новую запись `order_requests` со статусом `submitted`, payment status `not_required`, `user_id` authenticated customer и `idempotency_key`.
+11. Если пара `user_id + idempotency_key` уже существует, server возвращает существующую заявку вместо создания дубликата.
+12. После успешного создания или idempotent возврата заявки приложение очищает временно сохраненные client-side данные формы.
+13. User перенаправляется на `/order-request/success?request_id={id}`.
+14. Success page server-side проверяет session и ownership заявки.
+15. Customer видит отправленную заявку в `/account/order-requests`.
+16. Admin видит отправленную заявку в `/admin/order-requests`.
 
 Публичная форма создает заявку, а не финальный заказ.
 
@@ -351,17 +428,59 @@ Server должен отклонить заявку, если:
 - заявка создается только server-side через server endpoint или server action;
 - `user_id` берется из authenticated session, а не из client-submitted payload;
 - client не может передать или подменить `user_id`;
+- client передает `idempotency_key`, но server связывает его только с authenticated `user_id`;
+- повторный запрос после timeout использует тот же `idempotency_key`;
 - service role key не используется в браузере и не передается клиенту;
 - если используется service role key на server-side, endpoint обязан сначала проверить authenticated session и ownership data.
 
 Техническое правило временного хранения формы до login/register:
 
-- незавершенная заявка до authentication хранится только client-side, например в `sessionStorage`;
+- незавершенная заявка до authentication хранится в `sessionStorage` текущей вкладки;
+- autosave выполняется после изменения поля и перехода между шагами с debounce `300ms`;
+- draft хранит данные формы, locale и current step;
+- transient UI states не сохраняются: validation errors, loading, modal, submitting и submit error;
 - временно сохраненные данные формы не считаются доверенными данными;
 - после login/register восстановленные данные должны снова пройти client-side validation и обязательную server-side validation;
 - `cycle_price`, `user_id`, `status`, `payment_status` и admin-managed fields не берутся из временного client-side хранения как источник правды;
 - после успешного создания заявки временно сохраненные данные должны быть очищены;
+- draft очищается при logout, смене authenticated пользователя или закрытии вкладки;
+- разные вкладки имеют независимые drafts и не синхронизируются;
+- draft одного пользователя не восстанавливается для другого пользователя;
+- refresh восстанавливает данные, locale и current step;
+- после восстановления client повторно валидирует пройденные шаги и открывает первый invalid step;
+- сохраненная цена не является active price;
+- после refresh client обязательно повторно загружает active price;
+- до завершения price reload переход вперед и submit блокируются;
+- unchanged price сохраняет восстановленный valid step;
+- changed price обрабатывается через `price_changed`;
+- unavailable price возвращает пользователя на step 1;
 - если временно сохраненные данные повреждены, устарели или не проходят validation, customer должен вернуться к форме и исправить данные.
+
+### 7.1 Success page
+
+- `/order-request/success?request_id={id}` является authenticated customer route;
+- page загружает заявку server-side;
+- `request_id` не является доказательством ownership;
+- заявка возвращается только при совпадении `order_requests.user_id` с authenticated user id;
+- refresh повторно читает существующую заявку и не создает новую;
+- отсутствующий, invalid, несуществующий или чужой `request_id` перенаправляет на `/account/order-requests`;
+- `admin_notes` и другие закрытые поля не возвращаются success page.
+
+Success summary contract:
+
+- source of truth — сохраненная `order_requests` запись;
+- показываются short request id, `status = submitted`, plan label, meal format label, people count, `cycle_price`, preferred start date, customer name и delivery zone;
+- `customer_whatsapp` маскируется до формата вида `+962 7X *** **34`;
+- `delivery_address` показывает первые 20 Unicode code points и `…`, если значение длиннее;
+- `excluded_foods` и `additional_notes` не возвращаются полным текстом; возвращается только boolean-признак наличия пожеланий;
+- high-risk confirmation отображается как безопасный клиентский label без технических полей;
+- response не содержит `user_id`, `idempotency_key`, `admin_notes`, payload fingerprint или другие internal fields.
+
+Step 4 summary contract:
+
+- до отправки client показывает полный нормализованный form state, включая полный WhatsApp, адрес и пользовательские пожелания;
+- каждый смысловой блок имеет действие edit, возвращающее к соответствующему шагу;
+- после изменения данных summary и цена пересчитываются по действующим правилам.
 
 ## 8. Flow личного кабинета клиента и demo payment
 
@@ -536,7 +655,12 @@ Public form:
 - invalid people count;
 - high-risk answer `yes`;
 - unsupported delivery zone;
+- invalid Jordanian mobile number;
+- invalid field length or characters;
+- invalid preferred start date;
 - price unavailable;
+- price loading or temporary price fetch failure;
+- duplicate submit or retry after timeout;
 - server validation failure;
 - database insert failure.
 
@@ -562,6 +686,31 @@ Admin zone:
 
 Все errors должны использовать спокойный, non-alarming copy.
 
+Известные public validation error codes:
+
+| Error code | Русский | English |
+|---|---|---|
+| `required` | `Заполните это поле.` | `Complete this field.` |
+| `select_required` | `Выберите вариант.` | `Select an option.` |
+| `name_length` | `Имя должно содержать от 2 до 80 символов.` | `Name must be between 2 and 80 characters.` |
+| `name_characters` | `Используйте в имени только буквы, пробелы, дефисы и апострофы.` | `Use only letters, spaces, hyphens, and apostrophes in the name.` |
+| `phone_invalid` | `Укажите действующий мобильный номер Иордании.` | `Enter a valid Jordanian mobile number.` |
+| `delivery_zone_required` | `Выберите зону доставки.` | `Select a delivery area.` |
+| `delivery_zone_unsupported` | `Доставка в выбранную зону пока недоступна.` | `Delivery is not currently available in the selected area.` |
+| `address_length` | `Адрес должен содержать от 5 до 250 символов.` | `Address must be between 5 and 250 characters.` |
+| `address_characters` | `Проверьте символы в адресе.` | `Check the characters used in the address.` |
+| `text_too_long` | `Используйте не более 500 символов.` | `Use no more than 500 characters.` |
+| `spice_invalid` | `Выберите допустимый уровень остроты.` | `Select a valid spice level.` |
+| `start_date_invalid` | `Выберите ближайшее будущее воскресенье.` | `Select the nearest upcoming Sunday.` |
+| `high_risk_blocked` | `Mealora не может принять эту заявку из-за указанных ограничений.` | `Mealora cannot accept this request because of the stated restrictions.` |
+| `price_load_failed` | `Не удалось загрузить цену. Попробуйте еще раз.` | `We could not load the price. Try again.` |
+| `price_changed` | `Цена изменилась с {oldPrice} JOD на {newPrice} JOD. Проверьте новую сумму и подтвердите отправку еще раз.` | `The price changed from {oldPrice} JOD to {newPrice} JOD. Review the new amount and confirm submission again.` |
+| `price_unavailable` | `Эта комбинация сейчас недоступна. Выберите другой вариант.` | `This combination is currently unavailable. Choose another option.` |
+| `submit_timeout` | `Не удалось подтвердить результат отправки. Проверьте соединение и попробуйте еще раз.` | `We could not confirm the submission result. Check your connection and try again.` |
+| `submit_failed` | `Не удалось отправить заявку. Попробуйте еще раз.` | `We could not submit the request. Try again.` |
+
+Неизвестная public form error использует безопасный fallback `submit_failed`.
+
 ## 14. Требования безопасности
 
 - Admin routes должны быть защищены server-side.
@@ -580,19 +729,33 @@ Technical implementation считается acceptable, если:
 - клиентский интерфейс полностью доступен на `ru` и `en`, при этом `ru` используется по умолчанию;
 - выбор клиентской локали сохраняется при навигации, login/register и восстановлении формы;
 - клиентские validation, error, success, empty и refusal состояния отображаются на выбранной локали;
+- переход вперед по форме блокируется при invalid обязательных данных текущего шага, а переход назад сохраняет введенные данные;
 - неизвестная серверная ошибка отображается через локализованный безопасный fallback без раскрытия внутренних деталей;
 - админ-зона v1 использует русский язык и не требует английской локализации;
 - unauthenticated users могут просматривать публичные страницы, но не могут финально отправить заявку;
 - authenticated customers могут отправить valid заявку;
 - valid заявка создает одну database record, связанную с customer `user_id`;
+- повторный submit или retry с той же парой `user_id + idempotency_key` не создает вторую запись;
+- timeout не вызывает automatic retry; неизмененная форма допускает максимум три попытки с тем же key, включая первую отправку;
+- unique constraint защищает пару `user_id + idempotency_key`;
 - invalid или high-risk submissions не создают records;
 - missing price блокирует отправку;
 - valid price берется из active `price_options` с `currency = JOD`;
 - client-submitted price не используется как источник правды;
 - `order_requests.cycle_price` сохраняет snapshot цены на момент отправки заявки;
+- изменившаяся цена не принимается автоматически: `price_changed` требует обновления итога и нового явного submit с новым `idempotency_key`;
+- объединенное поле продуктов и легких непереносимостей сохраняется в `excluded_foods`;
+- `food_preferences` и `mild_intolerances` остаются `null` для публичной формы v1;
+- телефон нормализуется и хранится как `+9627XXXXXXXX`;
+- delivery zone принимается только из утвержденного allowlist;
+- preferred start date, если указана, равна ближайшему будущему воскресенью по `Asia/Amman`; текущее воскресенье и более поздние воскресенья отклоняются;
 - если unauthenticated customer начал заявку, данные формы временно сохраняются client-side и восстанавливаются после login/register;
 - временно сохраненные client-side данные не обходят server-side validation;
 - после успешного создания заявки временно сохраненные данные формы очищаются;
+- временная форма хранится только в `sessionStorage` текущей вкладки и не восстанавливается для другого пользователя;
+- refresh восстанавливает draft и current step, но active price всегда загружается повторно server-side;
+- success page использует `request_id`, проверяет ownership server-side и не раскрывает чужую заявку;
+- success page возвращает только утвержденное маскированное summary без полных чувствительных текстов и внутренних полей;
 - отправленные заявки появляются в customer account и admin request list со статусом `submitted`;
 - customers могут читать только свои заявки;
 - customers не могут читать admin notes;

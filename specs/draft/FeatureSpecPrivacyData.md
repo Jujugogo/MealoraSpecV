@@ -1,4 +1,4 @@
-# Mealora — Privacy and Personal Data Spec
+# Mealora — Feature Spec: Privacy and Personal Data
 
 **Статус:** draft
 **Проект:** Mealora
