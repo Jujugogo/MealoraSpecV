@@ -1,9 +1,9 @@
 # Mealora — Feature Spec: Order Request
 
-**Статус:** checked-and-approved  
-**Проект:** Mealora  
-**Тип документа:** Feature Spec  
-**Зона ответственности:** публичная форма заявки, high-risk отказ, auth gate, отправка заявки и success-состояние  
+**Статус:** checked-and-approved
+**Проект:** Mealora
+**Тип документа:** Feature Spec
+**Зона ответственности:** публичная форма заявки, high-risk отказ, auth gate, отправка заявки и success-состояние
 **Дата создания:** 2026-06-20
 
 ---
